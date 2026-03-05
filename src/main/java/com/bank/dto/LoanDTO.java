@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class LoanDTO {
-
     private Long id;
     private BigDecimal principalAmount;
     private BigDecimal outstandingBalance;
