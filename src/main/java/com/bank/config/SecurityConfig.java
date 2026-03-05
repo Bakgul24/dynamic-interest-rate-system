@@ -1,6 +1,6 @@
 package com.bank.config;
 
-import com.bank.security.JwtAuthenticationFilter;
+import com.bank.filter.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthFilter jwtAuthenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -31,8 +31,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/public/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

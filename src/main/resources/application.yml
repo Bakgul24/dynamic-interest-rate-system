@@ -1,29 +1,21 @@
 spring:
     application:
-        name: Dynamic-Interest-Rate-System
-
+        name: Dynamic Interest Rate System
     datasource:
         url: jdbc:postgresql://localhost:5432/dynamic_interest_rate_system
         username: postgres
         password: 100919
         driver-class-name: org.postgresql.Driver
-
     jpa:
         hibernate:
             ddl-auto: update
-        properties:
-            hibernate:
-                dialect: org.hibernate.dialect.PostgreSQLDialect
-                format_sql: true
-        show-sql: false
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 server:
     port: 8080
-    servlet:
-        context-path: /api
 
 jwt:
-    secret: your_super_secret_jwt_key_that_is_at_least_256_bits_long_for_security
+    secret: MyVeryLongAndSecureSecretKeyForJWTTokenGenerationWithHS512AlgorithmThatIsLongEnough12345678901234567890
     expiration: 86400000
 
 logging:

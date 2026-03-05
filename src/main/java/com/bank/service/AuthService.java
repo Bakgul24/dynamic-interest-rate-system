@@ -5,7 +5,6 @@ import com.bank.dto.LoginRequestDTO;
 import com.bank.dto.RegisterRequestDTO;
 import com.bank.entity.Customer;
 import com.bank.repository.CustomerRepository;
-import com.bank.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +18,7 @@ public class AuthService {
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtService jwtService;
     private final KYCService kycService;
 
     @Transactional
@@ -49,7 +48,7 @@ public class AuthService {
         customer = customerRepository.save(customer);
         log.info("Customer registered successfully: {} (ID: {})", request.getEmail(), customer.getId());
 
-        String token = jwtTokenProvider.generateToken(customer.getEmail());
+        String token = jwtService.generateToken(customer.getEmail());
 
         return AuthResponseDTO.builder()
                 .token(token)
@@ -77,7 +76,7 @@ public class AuthService {
 
         log.info("Customer login successful: {}", request.getEmail());
 
-        String token = jwtTokenProvider.generateToken(customer.getEmail());
+        String token = jwtService.generateToken(customer.getEmail());
 
         return AuthResponseDTO.builder()
                 .token(token)
