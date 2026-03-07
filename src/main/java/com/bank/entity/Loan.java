@@ -1,11 +1,7 @@
 package com.bank.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -16,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Loan {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,29 +36,37 @@ public class Loan {
     @Column(nullable = false)
     private Integer remainingMonths;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private LoanStatus status = LoanStatus.ACTIVE;
+    @Column(nullable = false)
+    private LoanStatus status;
 
     @Column(nullable = false)
-    private Integer consecutiveOnTimePayments = 0;
+    private Integer consecutiveOnTimePayments;
 
     @Column(nullable = false)
-    private Integer consecutiveLatePayments = 0;
+    private Integer consecutiveLatePayments;
 
     @Column(nullable = false)
     private Double currentRiskScore;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private BigDecimal totalPaid = BigDecimal.ZERO;
 
-    public enum LoanStatus {
-        ACTIVE, PAID_OFF, DEFAULT
-    }
+    @Column(nullable = false)
+    private BigDecimal totalDiscount = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    private BigDecimal totalPenalty = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.currentRiskScore = 50.0;
+        createdAt = LocalDateTime.now();
+    }
+
+    public enum LoanStatus {
+        ACTIVE, PAID_OFF, DEFAULT
     }
 }

@@ -31,12 +31,14 @@ public class LoanService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-        Double baseRate = 15.0;
+        Double baseRate = 15.;
+
+        var totalAmount = request.getAmount().multiply(BigDecimal.valueOf(baseRate / 100)).add(request.getAmount());
 
         Loan loan = Loan.builder()
                 .customer(customer)
                 .principalAmount(request.getAmount())
-                .outstandingBalance(request.getAmount())
+                .outstandingBalance(totalAmount)
                 .baseInterestRate(baseRate)
                 .currentInterestRate(baseRate)
                 .remainingMonths(request.getDurationMonths())
@@ -44,6 +46,9 @@ public class LoanService {
                 .consecutiveOnTimePayments(0)
                 .consecutiveLatePayments(0)
                 .currentRiskScore(50.0)
+                .totalPaid(BigDecimal.ZERO)
+                .totalDiscount(BigDecimal.ZERO)
+                .totalPenalty(BigDecimal.ZERO)
                 .build();
 
         loan = loanRepository.save(loan);
@@ -100,6 +105,13 @@ public class LoanService {
     }
 
     private LoanDTO convertToDTO(Loan loan) {
+        BigDecimal totalInterest = loan.getPrincipalAmount()
+                .multiply(BigDecimal.valueOf(loan.getBaseInterestRate() / 100));
+
+        BigDecimal bankProfit = totalInterest
+                .subtract(loan.getTotalDiscount())
+                .add(loan.getTotalPenalty());
+
         return LoanDTO.builder()
                 .id(loan.getId())
                 .principalAmount(loan.getPrincipalAmount())
@@ -112,6 +124,10 @@ public class LoanService {
                 .consecutiveLatePayments(loan.getConsecutiveLatePayments())
                 .currentRiskScore(loan.getCurrentRiskScore())
                 .createdAt(loan.getCreatedAt())
+                .totalPaid(loan.getTotalPaid())
+                .totalDiscount(loan.getTotalDiscount())
+                .totalPenalty(loan.getTotalPenalty())
+                .bankProfit(bankProfit)
                 .build();
     }
 }

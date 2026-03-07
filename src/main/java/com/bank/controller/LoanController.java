@@ -19,7 +19,6 @@ import java.util.List;
 @RequestMapping("/api/loans")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
 public class LoanController {
 
     private final CustomerRepository customerRepository;

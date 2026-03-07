@@ -20,7 +20,6 @@ import java.util.List;
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
 public class PaymentController {
 
     private final CustomerRepository customerRepository;

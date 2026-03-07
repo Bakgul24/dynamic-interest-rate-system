@@ -62,7 +62,40 @@ public class PaymentService {
         payment = paymentRepository.save(payment);
         log.info("Payment saved: ID={}, Amount={}", payment.getId(), request.getAmount());
 
-        loan.setOutstandingBalance(loan.getOutstandingBalance().subtract(request.getAmount()));
+        BigDecimal newBalance = loan.getOutstandingBalance().subtract(request.getAmount());
+
+        loan.setTotalPaid(loan.getTotalPaid().add(request.getAmount()));
+
+        if (isOnTime) {
+            BigDecimal cashbackAmount = request.getAmount()
+                    .multiply(BigDecimal.valueOf(0.02));
+            newBalance = newBalance.subtract(cashbackAmount);
+
+            loan.setTotalDiscount(loan.getTotalDiscount().add(cashbackAmount));
+
+            log.info("On-time payment bonus: {} × 3% = {}",
+                    request.getAmount(), cashbackAmount);
+        }
+
+        if (loan.getConsecutiveLatePayments() > 0) {
+            Double latePenalty = loan.getConsecutiveLatePayments() * 0.02;
+            BigDecimal penaltyAmount = newBalance
+                    .multiply(BigDecimal.valueOf(latePenalty));
+            newBalance = newBalance.add(penaltyAmount);
+
+            loan.setTotalPenalty(loan.getTotalPenalty().add(penaltyAmount));
+
+            log.info("Late payment penalty: {} late × 2% = {}",
+                    loan.getConsecutiveLatePayments(), penaltyAmount);
+        }
+
+        if (newBalance.compareTo(BigDecimal.ZERO) <= 0) {
+            loan.setStatus(Loan.LoanStatus.PAID_OFF);
+            newBalance = BigDecimal.ZERO;
+            log.info("Loan paid off: {}", loan.getId());
+        }
+
+        loan.setOutstandingBalance(newBalance);
         loanService.updateLoanAfterPayment(loan, isOnTime);
 
         log.info("Payment completed successfully: paymentId={}", payment.getId());

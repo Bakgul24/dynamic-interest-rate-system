@@ -38,20 +38,21 @@ public class RiskScoringService {
         Double baseRate = loan.getBaseInterestRate();
         Double riskScore = loan.getCurrentRiskScore();
 
-        Double additionalRate = (riskScore / 100) * 20;
-        Double newRate = baseRate + additionalRate;
+
+        Double riskFactor = (riskScore - 50) / 100;
+        Double newRate = baseRate + (riskFactor * 6);
 
         if (loan.getConsecutiveOnTimePayments() >= 3) {
-            newRate = Math.max(baseRate, newRate - 0.5);
+            newRate -= 0.5;
         }
 
         if (loan.getConsecutiveLatePayments() > 0) {
             newRate += (loan.getConsecutiveLatePayments() * 1.5);
         }
 
-        log.info("Interest rate calculated for loan {}: {}% (base: {}%, risk: {})",
-                loan.getId(), newRate, baseRate, riskScore);
+        newRate = Math.max(10.0, Math.min(25.0, newRate));
 
+        log.info("Interest rate: {}% (risk: {})", newRate, riskScore);
         return newRate;
     }
 
